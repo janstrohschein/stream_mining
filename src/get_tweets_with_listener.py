@@ -10,6 +10,10 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 
+import avro.schema
+from avro.datafile import DataFileReader, DataFileWriter
+from avro.io import DatumReader, DatumWriter
+
 
 #This is a basic listener that just prints received tweets to stdout.
 class StdOutListener(StreamListener):
@@ -38,7 +42,6 @@ class StdOutListener(StreamListener):
 
     def open_csv_writer(self):
         # Open/Create a file to append data
-        #self.csvFile = open('result.csv', 'a')
         if 'csv' in self.config['Store']:
             self.csvFile = codecs.open(self.config['Store']['csv'][0], 'a', encoding="utf-8")
             print('Store data in ' + self.config['Store']['csv'][0])
@@ -47,6 +50,9 @@ class StdOutListener(StreamListener):
             print('Store data in standard file result.csv')
         #Use csv Writer
         self.csvWriter = csv.writer(self.csvFile)
+
+    def open_avro_writer(self):
+        self.avro_schema = avro.schema.Parse(open("tweet.avsc").read())
 
     def on_data(self, data):
         tweet = self.read_json(data)
@@ -63,6 +69,10 @@ class StdOutListener(StreamListener):
             self.csvWriter.writerow(tweet_extract)
             # writes to file before self.csvFile.close()
             self.csvFile.flush()
+
+        self.avro_writer = DataFileWriter(open("tweet.avro", "wb"), DatumWriter(), self.avro_schema)
+        self.avro_writer.append({"name": tweet_extract[0], "text": tweet_extract[1]})
+        self.avro_writer.close()
 
         print(*tweet_extract)
 
@@ -86,6 +96,19 @@ if __name__ == '__main__':
     sys.stdout = codecs.getwriter('utf8')(sys.stdout.buffer)
 
     l.open_csv_writer()
+    l.open_avro_writer()
+    try:
+        reader = DataFileReader(open("tweet.avro", 'rb'), DatumReader())
+        for tweet in reader:
+            print(tweet)
+        reader.close()
+    except :
+        print(sys.exc_info())
+
     #This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
     stream.filter(track=l.config['Extract']['keywords'])
     l.csvFile.close()
+    l.avro_writer.close()
+
+
+

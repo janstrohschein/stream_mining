@@ -91,3 +91,9 @@ ENV/
 
 # Twitter Access Token
 twitter.ini
+
+# Output files
+*.csv
+src/test.py
+src/user.avsc
+src/users.avro

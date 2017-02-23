@@ -71,15 +71,39 @@ class KafkaListener(StreamListener):
 
 
         tweet_data = {
-            "name": tweet_extract[0],
-            "text": tweet_extract[1]
+            "t.id": tweet.get('id'),
+            "t.created_at": tweet.get('created_at'),
+            "t.timestamp_ms": tweet.get('timestamp_ms'),
+            "t.text": tweet.get('text'),
+            "t.favourite_count": tweet.get('favourite_count'),
+            "t.favorited": tweet.get('favorited'),
+            "t.in_reply_to_screen_name": tweet.get('in_reply_to_screen_name'),
+            "t.in_reply_to_status_id": tweet.get('in_reply_to_status_id'),
+            "t.in_reply_to_user_id": tweet.get('in_reply_to_user_id'),
+            "t.is_quote_status": tweet.get('is_quote_status'),
+            "t.retweeted": tweet.get('retweeted'),
         }
+
+            # {"name": "t.u.id", "type": "int"},
+            # {"name": "t.u.name", "type": ["string", "null"]},
+            # {"name": "t.u.screen_name", "type": ["string", "null"]},
+            # {"name": "t.u.description", "type": ["string", "null"]},
+            # {"name": "t.u.lang", "type": ["string", "null"]},
+            # {"name": "t.u.location", "type": ["string", "null"]},
+            # {"name": "t.u.statuses_count", "type": ["int", "null"]},
+            # {"name": "t.u.followers_count", "type": ["int", "null"]},
+            # {"name": "t.u.following", "type": ["int", "null"]},
+            # {"name": "t.u.favourites_count", "type": ["int", "null"]},
+            # {"name": "t.u.friends_count", "type": ["int", "null"]},
+            # {"name": "t.u.created_at", "type": "string"},
+
+
 
         raw_bytes = self.encode(self.schema, tweet_data)
         if raw_bytes is not None:
             self.send(self.topic, raw_bytes)
 
-        print(*tweet_extract)
+        print(*tweet_data)
         self.num_tweets += 1
 
         return True

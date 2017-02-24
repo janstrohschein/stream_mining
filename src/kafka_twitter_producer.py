@@ -30,7 +30,7 @@ class KafkaListener(StreamListener):
         self.kafka = SimpleClient('localhost:9092')
         self.producer = SimpleProducer(self.kafka)
         self.topic = 'tweets'
-        self.schema = 'tweet.avsc'
+        self.schema = 'tweet_full.avsc'
 
     def read_config(self):
         config = ConfigParser()
@@ -82,28 +82,64 @@ class KafkaListener(StreamListener):
             "t.in_reply_to_user_id": tweet.get('in_reply_to_user_id'),
             "t.is_quote_status": tweet.get('is_quote_status'),
             "t.retweeted": tweet.get('retweeted'),
+
+            "t.u.id": tweet['user'].get('id'),
+            "t.u.name": tweet['user'].get('name'),
+            "t.u.screen_name": tweet['user'].get('screen_name'),
+            "t.u.description": tweet['user'].get('description'),
+            "t.u.lang": tweet['user'].get('lang'),
+            "t.u.location": tweet['user'].get('location'),
+            "t.u.statuses_count": tweet['user'].get('statuses_count'),
+            "t.u.followers_count": tweet['user'].get('followers_count'),
+            "t.u.favourites_count": tweet['user'].get('favourites_count'),
+            "t.u.friends_count": tweet['user'].get('friends_count'),
+            "t.u.created_at": tweet['user'].get('created_at'),
         }
+        if 'quoted_status' in tweet:
+            tweet_data["q.id"] = tweet['quoted_status'].get('id')
+            tweet_data["q.created_at"] = tweet['quoted_status'].get('created_at')
+            tweet_data["q.text"] = tweet['quoted_status'].get('text')
+            tweet_data["q.in_reply_to_screen_name"] = tweet['quoted_status'].get('in_reply_to_screen_name')
+            tweet_data["q.in_reply_to_status_id"] = tweet['quoted_status'].get('in_reply_to_status_id')
+            tweet_data["q.in_reply_to_user_id"] = tweet['quoted_status'].get('in_reply_to_user_id')
+            tweet_data["q.u.id"] = tweet['quoted_status']['user'].get('id')
+            tweet_data["q.u.name"] = tweet['quoted_status']['user'].get('name')
+            tweet_data["q.u.screen_name"] = tweet['quoted_status']['user'].get('screen_name')
+            tweet_data["q.u.description"] = tweet['quoted_status']['user'].get('description')
+            tweet_data["q.u.lang"] = tweet['quoted_status']['user'].get('lang')
+            tweet_data["q.u.location"] = tweet['quoted_status']['user'].get('location')
+            tweet_data["q.u.statuses_count"] = tweet['quoted_status']['user'].get('statuses_count')
+            tweet_data["q.u.followers_count"] = tweet['quoted_status']['user'].get('followers_count')
+            tweet_data["q.u.favourites_count"] = tweet['quoted_status']['user'].get('favourites_count')
+            tweet_data["q.u.friends_count"] = tweet['quoted_status']['user'].get('friends_count')
+            tweet_data["q.u.created_at"] = tweet['quoted_status']['user'].get('created_at')
 
-            # {"name": "t.u.id", "type": "int"},
-            # {"name": "t.u.name", "type": ["string", "null"]},
-            # {"name": "t.u.screen_name", "type": ["string", "null"]},
-            # {"name": "t.u.description", "type": ["string", "null"]},
-            # {"name": "t.u.lang", "type": ["string", "null"]},
-            # {"name": "t.u.location", "type": ["string", "null"]},
-            # {"name": "t.u.statuses_count", "type": ["int", "null"]},
-            # {"name": "t.u.followers_count", "type": ["int", "null"]},
-            # {"name": "t.u.following", "type": ["int", "null"]},
-            # {"name": "t.u.favourites_count", "type": ["int", "null"]},
-            # {"name": "t.u.friends_count", "type": ["int", "null"]},
-            # {"name": "t.u.created_at", "type": "string"},
+        if 'retweeted_status' in tweet:
+            tweet_data["r.id"] = tweet['retweeted_status'].get('id')
+            tweet_data["r.created_at"] = tweet['retweeted_status'].get('created_at')
+            tweet_data["r.text"] = tweet['retweeted_status'].get('text')
+            tweet_data["r.in_reply_to_screen_name"] = tweet['retweeted_status'].get('in_reply_to_screen_name')
+            tweet_data["r.in_reply_to_status_id"] = tweet['retweeted_status'].get('in_reply_to_status_id')
+            tweet_data["r.in_reply_to_user_id"] = tweet['retweeted_status'].get('in_reply_to_user_id')
+            tweet_data["r.u.id"] = tweet['retweeted_status']['user'].get('id')
+            tweet_data["r.u.name"] = tweet['retweeted_status']['user'].get('name')
+            tweet_data["r.u.screen_name"] = tweet['retweeted_status']['user'].get('screen_name')
+            tweet_data["r.u.description"] = tweet['retweeted_status']['user'].get('description')
+            tweet_data["r.u.lang"] = tweet['retweeted_status']['user'].get('lang')
+            tweet_data["r.u.location"] = tweet['retweeted_status']['user'].get('location')
+            tweet_data["r.u.statuses_count"] = tweet['retweeted_status']['user'].get('statuses_count')
+            tweet_data["r.u.followers_count"] = tweet['retweeted_status']['user'].get('followers_count')
+            tweet_data["r.u.favourites_count"] = tweet['retweeted_status']['user'].get('favourites_count')
+            tweet_data["r.u.friends_count"] = tweet['retweeted_status']['user'].get('friends_count')
+            tweet_data["r.u.created_at"] = tweet['retweeted_status']['user'].get('created_at')
 
-
+        tweet_data = {k: v for k, v in tweet_data.items() if v!=None}
 
         raw_bytes = self.encode(self.schema, tweet_data)
         if raw_bytes is not None:
             self.send(self.topic, raw_bytes)
 
-        print(*tweet_data)
+        print(*tweet_extract)
         self.num_tweets += 1
 
         return True

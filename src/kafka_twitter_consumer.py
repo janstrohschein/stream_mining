@@ -7,7 +7,7 @@ consumer = KafkaConsumer('tweets',\
                          group_id='my_group',\
                          bootstrap_servers=['localhost:9092'])
 
-schema = avro.schema.Parse(open('tweet.avsc').read())
+schema = avro.schema.Parse(open('tweet_full.avsc').read())
 
 for msg in consumer:
     bytes_reader = io.BytesIO(msg.value)

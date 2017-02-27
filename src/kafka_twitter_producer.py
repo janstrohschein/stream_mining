@@ -1,36 +1,39 @@
-from kafka import SimpleProducer, SimpleClient
-import avro.schema
-import io
-from avro.io import DatumWriter, BinaryEncoder
-import sys
-from configparser import ConfigParser
 import sys
 import json
-import csv
-import codecs
-import re
-import os
+import io
+from configparser import ConfigParser
+
+from kafka import SimpleProducer, SimpleClient
+
+from avro.io import BinaryEncoder, DatumWriter
+import avro.schema
 
 # Import the necessary methods from tweepy library
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 
-import avro.schema
-from avro.datafile import DataFileReader, DataFileWriter
-from avro.io import DatumReader, DatumWriter
+
 
 # This is a basic listener that just prints received tweets to stdout.
 class KafkaListener(StreamListener):
     def __init__(self):
         super(KafkaListener, self).__init__()
         self.config = {}
-        self.num_tweets = 0
         self.read_config()
+
+        # configuration file can contain a max number, listener stops then
+        self.num_tweets = 0
+
         self.kafka = SimpleClient('localhost:9092')
         self.producer = SimpleProducer(self.kafka)
+
         self.topic = 'tweets'
-        self.schema = 'tweet_full.avsc'
+
+        self.schema_file = 'tweet_full.avsc'
+        if 'avro_schema' in self.config['Store']:
+            self.schema_file = self.config['Store']['avro_schema'][0]
+        self.schema = avro.schema.Parse(open(self.schema_file).read())
 
     def read_config(self):
         config = ConfigParser()
@@ -56,20 +59,8 @@ class KafkaListener(StreamListener):
             return False
 
         tweet = self.read_json(data)
-        tweet_extract = []
-        if 'user' in self.config['Extract']['elements'] and 'user' in tweet:
-            tweet_extract.append(tweet['user'].get('name') + ': ')
-        else:
-            tweet_extract.append('No Name: ')
 
-        if 'text' in self.config['Extract']['elements'] and 'text' in tweet:
-            tweet_extract.append(tweet.get('text'))
-        else:
-            tweet_extract.append('No Text')
-
-        tweet_extract = [re.sub('\s+', ' ', item) for item in tweet_extract]
-
-
+        # assign all field values to the corresponding schema names
         tweet_data = {
             "t.id": tweet.get('id'),
             "t.created_at": tweet.get('created_at'),
@@ -133,13 +124,16 @@ class KafkaListener(StreamListener):
             tweet_data["r.u.friends_count"] = tweet['retweeted_status']['user'].get('friends_count')
             tweet_data["r.u.created_at"] = tweet['retweeted_status']['user'].get('created_at')
 
+        # discards all fields where "get" returned None
         tweet_data = {k: v for k, v in tweet_data.items() if v!=None}
 
-        raw_bytes = self.encode(self.schema, tweet_data)
+        # encode the tweet with the specified Avro schema
+        raw_bytes = self.encode(tweet_data)
+
+        # publish the message if encoding was successful
         if raw_bytes is not None:
             self.send(self.topic, raw_bytes)
 
-        print(*tweet_extract)
         self.num_tweets += 1
 
         return True
@@ -150,11 +144,10 @@ class KafkaListener(StreamListener):
     def read_json(self, data):
         return json.loads(data, 'utf-8')
 
-    def encode(self, schema_file, data):
+    def encode(self, data):
         raw_bytes = None
         try:
-            schema = avro.schema.Parse(open(schema_file).read())
-            writer = DatumWriter(schema)
+            writer = DatumWriter(self.schema)
             bytes_writer = io.BytesIO()
             encoder = BinaryEncoder(bytes_writer)
             writer.write(data, encoder)
@@ -175,9 +168,6 @@ l = KafkaListener()
 auth = OAuthHandler(*l.config['Twitter']['consumer_key'], *l.config['Twitter']['consumer_secret'])
 auth.set_access_token(*l.config['Twitter']['access_token'], *l.config['Twitter']['access_token_secret'])
 stream = Stream(auth, l)
-
-# adds utf-8 support to windows console
-sys.stdout = codecs.getwriter('utf8')(sys.stdout.buffer)
 
 # uses the keywords defined in the ini-file
 stream.filter(track=l.config['Extract']['keywords'])

@@ -44,9 +44,7 @@ The twitter consumer then receives the rich tweet object and is able to process 
 1. Download the current Kafka version from the [Project Page](https://kafka.apache.org/downloads)
 2. Create a new directory for Apache Kafka and extract the files into a subdirectory. ("C:\kafka\kafka_2.11-0.10.1.1\")
 3. Enter the "config"-folder
-4. Edit server.properties and search for the "log.dirs" entry. 
-Change the path to your Kafka directory:
-```log.dirs=C:\kafka\kafka_2.11-0.10.1.1\kafka-logs```
+4. Edit server.properties and search for the "log.dirs" entry. Change the path to your Kafka directory: ```log.dirs=C:\kafka\kafka_2.11-0.10.1.1\kafka-logs```
 5. Enter the "bin"- and the "windows"-folder, then start a Powershell.
 6. Start the Kafka server with the following command: `.\kafka-server-start.bat .\config\server.properties`
 

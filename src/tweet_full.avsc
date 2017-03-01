@@ -21,7 +21,7 @@
     {"name": "t.u.followers_count", "type": ["null", "long"]},
     {"name": "t.u.favourites_count", "type": ["null", "long"]},
     {"name": "t.u.friends_count", "type": ["null", "long"]},
-    {"name": "t.u.created_at", "type": "string"},
+    {"name": "t.u.created_at", "type": ["null", "string"]},
 	{"name": "q.id", "type": ["long", "null"]},
 	{"name": "q.created_at", "type": ["string", "null"]},
     {"name": "q.text", "type": ["string", "null"]},

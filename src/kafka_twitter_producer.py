@@ -72,20 +72,21 @@ class KafkaListener(StreamListener):
             "t.in_reply_to_status_id": tweet.get('in_reply_to_status_id'),
             "t.in_reply_to_user_id": tweet.get('in_reply_to_user_id'),
             "t.is_quote_status": tweet.get('is_quote_status'),
-            "t.retweeted": tweet.get('retweeted'),
-
-            "t.u.id": tweet['user'].get('id'),
-            "t.u.name": tweet['user'].get('name'),
-            "t.u.screen_name": tweet['user'].get('screen_name'),
-            "t.u.description": tweet['user'].get('description'),
-            "t.u.lang": tweet['user'].get('lang'),
-            "t.u.location": tweet['user'].get('location'),
-            "t.u.statuses_count": tweet['user'].get('statuses_count'),
-            "t.u.followers_count": tweet['user'].get('followers_count'),
-            "t.u.favourites_count": tweet['user'].get('favourites_count'),
-            "t.u.friends_count": tweet['user'].get('friends_count'),
-            "t.u.created_at": tweet['user'].get('created_at'),
+            "t.retweeted": tweet.get('retweeted')
         }
+        if 'user' in tweet:
+            tweet_data["t.u.id"] = tweet['user'].get('id')
+            tweet_data["t.u.name"] = tweet['user'].get('name')
+            tweet_data["t.u.screen_name"] = tweet['user'].get('screen_name')
+            tweet_data["t.u.description"] = tweet['user'].get('description')
+            tweet_data["t.u.lang"] = tweet['user'].get('lang')
+            tweet_data["t.u.location"] = tweet['user'].get('location')
+            tweet_data["t.u.statuses_count"] = tweet['user'].get('statuses_count')
+            tweet_data["t.u.followers_count"] = tweet['user'].get('followers_count')
+            tweet_data["t.u.favourites_count"] = tweet['user'].get('favourites_count')
+            tweet_data["t.u.friends_count"] = tweet['user'].get('friends_count')
+            tweet_data["t.u.created_at"] = tweet['user'].get('created_at')
+
         if 'quoted_status' in tweet:
             tweet_data["q.id"] = tweet['quoted_status'].get('id')
             tweet_data["q.created_at"] = tweet['quoted_status'].get('created_at')

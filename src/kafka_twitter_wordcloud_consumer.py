@@ -15,11 +15,16 @@ tweet_list = []
 from nltk.corpus import stopwords
 stop = set(stopwords.words('english'))
 
-for msg in consumer:
-    bytes_reader = io.BytesIO(msg.value)
+def get_tweet(msg):
+    bytes_reader = io.BytesIO(msg)
     decoder = avro.io.BinaryDecoder(bytes_reader)
     reader = avro.io.DatumReader(schema)
     tweet = reader.read(decoder)
+
+    return tweet
+
+for msg in consumer:
+    tweet = get_tweet(msg.value)
 
     if 't.text' in tweet:
         tweet_text = re.sub('\s+', ' ', tweet['t.text'])

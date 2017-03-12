@@ -3,12 +3,13 @@
 <style>
   #data {
       width: 200px;
+      height: 360;
       text-align: center;
       float: left;
   }
   #my_canvas {
       width: 600px;
-      height: 200px;
+      height: 360px;
       float: left;
   }
 </style>
@@ -37,7 +38,7 @@ if (!!window.EventSource) {
         table += '</table>';
         $("#data").html(table);
         wordcloud_colors = ['#c81e0f', '#b43092', '#ea5a00'];
-        WordCloud(document.getElementById('my_canvas'), { list: list, fontFamily: 'Impact', minSize: 8, weightFactor: 5,
+        WordCloud(document.getElementById('my_canvas'), { list: list, fontFamily: 'Impact', rotationSteps: 2, minSize: 8,
             color: function (word, weight) {return (weight % 2) ? '#b43092' : '#ea5a00';} } );
 
     }

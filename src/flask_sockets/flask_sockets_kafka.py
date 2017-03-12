@@ -27,6 +27,8 @@ class TweetConsumer:
 
 
     stop = set(stopwords.words('english'))
+    stop.update(stopwords.words('spanish'))
+    stop.update(['rt', '&', '-', '|', ':', '&amp'])
 
     def get_tweet(self, msg):
         bytes_reader = io.BytesIO(msg)
@@ -67,12 +69,13 @@ def index():
                     tweet_list_con = " ".join([ tweet[1] for tweet in tweets.tweet_list])
 
                     # remove URLs, RTs, and twitter handles
-                    no_urls_no_tags = " ".join([word for word in tweet_list_con.split()
-                                                if 'http' not in word
-                                                    and not word.startswith('@')
-                                                    and word != 'rt'
-                                                    and word not in tweets.stop
-                                                ])
+                    no_urls_no_tags = ""
+                    for word in re.split(r'[,;\'\"`´ ]+', tweet_list_con):
+                        if 'http' not in word and \
+                            not word.startswith('@') and \
+                            not word.startswith('.') and \
+                            word not in tweets.stop:
+                            no_urls_no_tags += ' ' + word
 
                     word_count = Counter(no_urls_no_tags.split())
 
@@ -86,12 +89,8 @@ def index():
                     out_json = json.dumps(out_list, 'utf-8')
                     yield "data: %s \n\n" % (out_json)
 
-                    time.sleep(1.5)  # an artificial delay
+                    time.sleep(.5)  # an artificial delay
 
-
-            # for i, c in enumerate(itertools.cycle('\|/-')):
-            #     yield "data: %s %d\n\n" % (c, i)
-            #     time.sleep(.1)  # an artificial delay
         return Response(events(), content_type='text/event-stream')
     return redirect(url_for('static', filename='index.html'))
 

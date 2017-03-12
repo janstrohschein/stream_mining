@@ -2,29 +2,45 @@
 <title>Server Send Events Demo</title>
 <style>
   #data {
-    text-align: center;
+      width: 200px;
+      text-align: center;
+      float: left;
+  }
+  #my_canvas {
+      width: 600px;
+      height: 200px;
+      float: left;
   }
 </style>
 <body>
-    <div id="data">nothing received yet</div>
+    <div>
+        <div id="data">nothing received yet</div>
+        <div id="my_canvas"></div>
+    </div>
 </body>
 <script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="wordcloud2.js"></script>
 <script>
 if (!!window.EventSource) {
     var source = new EventSource('/');
     source.onmessage = function(e) {
-        var json = JSON.parse(e.data);
         var table = '<table class="mainTable"><tr><th>Count</th><th>Word</th></tr>';
         var data = $.parseJSON(e.data);
+        var list = [];
         $.each(data, function (idx, obj) {
            table += ('<tr>');
            table += ('<td>' + obj[1]+ "x" + '</td>');
            table += ('<td>' + obj[0] + '</td>');
            table += ('</tr>');
+           list.push([obj[0], obj[1]])
         });
         table += '</table>';
         $("#data").html(table);
+        wordcloud_colors = ['#c81e0f', '#b43092', '#ea5a00'];
+        WordCloud(document.getElementById('my_canvas'), { list: list, fontFamily: 'Impact', minSize: 8, weightFactor: 5,
+            color: function (word, weight) {return (weight % 2) ? '#b43092' : '#ea5a00';} } );
 
     }
 }
+
 </script>

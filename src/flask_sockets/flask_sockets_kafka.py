@@ -86,7 +86,7 @@ def index():
                     out_json = json.dumps(out_list, 'utf-8')
                     yield "data: %s \n\n" % (out_json)
 
-                    time.sleep(.5)  # an artificial delay
+                    time.sleep(1.5)  # an artificial delay
 
 
             # for i, c in enumerate(itertools.cycle('\|/-')):

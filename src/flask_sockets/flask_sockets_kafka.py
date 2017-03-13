@@ -25,20 +25,25 @@ class TweetConsumer:
         self.schema = avro.schema.Parse(open(self.schema_path).read())
         self.tweet_list = []
 
-
+    # uses the english and spanish stopword-lists from nltk and some additional
+    # twitter/web words
     stop = set(stopwords.words('english'))
     stop.update(stopwords.words('spanish'))
     stop.update(['rt', '&', '-', '|', ':', '&amp'])
 
     def get_tweet(self, msg):
+        """
+        Decodes the binary tweet object with the according avro schema
+
+        :param msg: the tweet to decode
+        :return:
+        """
         bytes_reader = io.BytesIO(msg)
         decoder = avro.io.BinaryDecoder(bytes_reader)
         reader = avro.io.DatumReader(self.schema)
         tweet = reader.read(decoder)
 
         return tweet
-
-
 
 
 @app.route('/')
@@ -48,16 +53,28 @@ def index():
         def events():
             tweets = TweetConsumer()
 
+            # iterates over the kafka consumer and yields the resulting word cloud
             for msg in tweets.consumer:
-
+                # decode the current tweet with the avro schema
                 tweet = tweets.get_tweet(msg.value)
 
+                #if there is a text-element in the new tweet object
                 if 't.text' in tweet:
+                    # remove stopwords, URLs, RTs, and twitter handles
                     tweet_text = re.sub('\s+', ' ', tweet['t.text'])
-                    print(tweet_text)
+                    tweet_text = tweet_text.lower()
+                    tweet_text_clean = ""
+                    for word in re.split(r'[,;\'\"`´’ ]+', tweet_text):
+                        if 'http' not in word and \
+                            not word.startswith('@') and \
+                            not word.startswith('.') and \
+                            word not in tweets.stop:
+                            tweet_text_clean += ' ' + word
 
-                    tweets.tweet_list.append((datetime.now(), tweet_text.lower()))
+                    # stores tweets with a timestamp so old tweets can be removed
+                    tweets.tweet_list.append((datetime.now(), tweet_text_clean))
 
+                    # removes tweets that are older than 60 minutes
                     tod = datetime.now()
                     d = timedelta(minutes = 60)
                     a = tod - d
@@ -65,30 +82,18 @@ def index():
                         print(tweets.tweet_list[0][0], '<', a)
                         tweets.tweet_list.pop(0)
 
-                    # join tweets to a single string
+                    # join tweets to a single string so the Counter can work on it afterwards
                     tweet_list_con = " ".join([ tweet[1] for tweet in tweets.tweet_list])
 
-                    # remove URLs, RTs, and twitter handles
-                    no_urls_no_tags = ""
-                    for word in re.split(r'[,;\'\"`´ ]+', tweet_list_con):
-                        if 'http' not in word and \
-                            not word.startswith('@') and \
-                            not word.startswith('.') and \
-                            word not in tweets.stop:
-                            no_urls_no_tags += ' ' + word
+                    # creates counts of the 15 most common words in no_urls_no_tags
+                    # and stores them in out_list as tuples of (word, count)
+                    word_count = Counter(tweet_list_con.split())
+                    out_list = [(word, count) for word, count in word_count.most_common(15)]
 
-                    word_count = Counter(no_urls_no_tags.split())
-
-                    out_string = ""
-                    out_list = []
-                    for word, count in word_count.most_common(15):
-                        out_string += str(count) + "x " + word + " "
-                        out_list.append((word, count))
-                        print('%dx %s' % (count, word))
-
+                    # encodes the list to a json-object and yields it as result for this
+                    # iteration of the loop
                     out_json = json.dumps(out_list, 'utf-8')
                     yield "data: %s \n\n" % (out_json)
-
                     time.sleep(.5)  # an artificial delay
 
         return Response(events(), content_type='text/event-stream')

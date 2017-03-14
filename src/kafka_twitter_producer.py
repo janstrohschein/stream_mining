@@ -60,7 +60,7 @@ class KafkaListener(StreamListener):
 
         tweet = self.read_json(data)
 
-        # assign all field values to the corresponding schema names
+        # assign all field values to the corresponding in_schema names
         tweet_data = {
             "t.id": tweet.get('id'),
             "t.created_at": tweet.get('created_at'),
@@ -128,7 +128,7 @@ class KafkaListener(StreamListener):
         # discards all fields where "get" returned None
         tweet_data = {k: v for k, v in tweet_data.items() if v!=None}
 
-        # encode the tweet with the specified Avro schema
+        # encode the tweet with the specified Avro in_schema
         raw_bytes = self.encode(tweet_data)
 
         # publish the message if encoding was successful

@@ -33,7 +33,7 @@ class TweetConsumer:
 
     def get_tweet(self, msg):
         """
-        Decodes the binary tweet object with the according avro schema
+        Decodes the binary tweet object with the according avro in_schema
 
         :param msg: the tweet to decode
         :return:
@@ -55,7 +55,7 @@ def index():
 
             # iterates over the kafka consumer and yields the resulting word cloud
             for msg in tweets.consumer:
-                # decode the current tweet with the avro schema
+                # decode the current tweet with the avro in_schema
                 tweet = tweets.get_tweet(msg.value)
 
                 #if there is a text-element in the new tweet object

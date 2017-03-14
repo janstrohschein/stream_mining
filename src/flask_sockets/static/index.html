@@ -26,19 +26,19 @@ if (!!window.EventSource) {
     var source = new EventSource('/');
     source.onmessage = function(e) {
         var table = '<table class="mainTable"><tr><th>Count</th><th>Word</th></tr>';
-        var data = $.parseJSON(e.data);
+        var data = JSON.parse(e.data);
         var list = [];
         $.each(data, function (idx, obj) {
            table += ('<tr>');
            table += ('<td>' + obj[1]+ "x" + '</td>');
            table += ('<td>' + obj[0] + '</td>');
            table += ('</tr>');
-           list.push([obj[0], obj[1]])
+           list.push([obj[0], ((obj[1]+20)/(Math.log(obj[1])))])
         });
         table += '</table>';
         $("#data").html(table);
         wordcloud_colors = ['#c81e0f', '#b43092', '#ea5a00'];
-        WordCloud(document.getElementById('my_canvas'), { list: list, fontFamily: 'Impact', rotationSteps: 2, minSize: 8,
+        WordCloud(document.getElementById('my_canvas'), { list: list, fontFamily: 'Impact', rotationSteps: 2,
             color: function (word, weight) {return (weight % 2) ? '#b43092' : '#ea5a00';} } );
 
     }

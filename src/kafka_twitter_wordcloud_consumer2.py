@@ -1,18 +1,16 @@
 from collections import Counter
-
-from kafka import KafkaConsumer
-import avro.schema
-import avro.io
-
 from datetime import datetime, timedelta
 import re
-from nltk.corpus import stopwords
-
 import sys
 import json
 import io
 
-from kafka import SimpleProducer, SimpleClient, KafkaProducer
+import avro.schema
+import avro.io
+
+from nltk.corpus import stopwords
+
+from kafka import SimpleProducer, SimpleClient, KafkaConsumer, KafkaProducer
 
 from avro.io import BinaryEncoder, DatumWriter
 import avro.schema
@@ -25,14 +23,17 @@ class TweetConsumer:
                          group_id='wordcloud_output',\
                          bootstrap_servers=['localhost:9092'])
         self.in_schema_path = "tweet_full.avsc"
-        #self.out_schema_path = "json.avsc"
 
         self.in_schema = avro.schema.Parse(open(self.in_schema_path).read())
-        #self.out_schema = avro.schema.Parse(open(self.out_schema_path).read())
         self.tweet_list = []
 
-        self.kafka = SimpleClient('localhost:9092')
-        self.producer = SimpleProducer(self.kafka)
+        #self.kafka = SimpleClient('localhost:9092')
+        #self.producer = SimpleProducer(self.kafka)
+
+        # if no broker_id is provided the KafkaProducer will connect
+        # on localhost:9092
+        self.producer = KafkaProducer()
+
         self.topic = 'wordcloud_output'
 
     # uses the english and spanish stopword-lists from nltk and some additional

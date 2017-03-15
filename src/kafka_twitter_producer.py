@@ -3,7 +3,7 @@ import json
 import io
 from configparser import ConfigParser
 
-from kafka import SimpleProducer, SimpleClient
+from kafka import KafkaProducer
 
 from avro.io import BinaryEncoder, DatumWriter
 import avro.schema
@@ -25,8 +25,12 @@ class KafkaListener(StreamListener):
         # configuration file can contain a max number, listener stops then
         self.num_tweets = 0
 
-        self.kafka = SimpleClient('localhost:9092')
-        self.producer = SimpleProducer(self.kafka)
+        #self.kafka = SimpleClient('localhost:9092')
+        #self.producer = SimpleProducer(self.kafka)
+
+        # if no broker_id is provided the KafkaProducer will connect
+        # on localhost:9092
+        self.producer = KafkaProducer()
 
         self.topic = 'tweets'
 

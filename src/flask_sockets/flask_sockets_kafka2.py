@@ -1,21 +1,17 @@
 import time
 import json
 from flask import Flask, Response, redirect, request, url_for
-
 from kafka import KafkaConsumer
-import avro.schema
-import avro.io
-import io
-
 
 app = Flask(__name__)
 
 class TweetConsumer:
 
     def __init__(self):
-        self.consumer = KafkaConsumer('wordcloud_output',\
-                         group_id='flask_wordcloud',\
-                         bootstrap_servers=['localhost:9092'])
+        self.consumer = KafkaConsumer('wordcloud_output',
+                                      group_id='flask_wordcloud',
+                                      bootstrap_servers=['localhost:9092'],
+                                      auto_offset_reset="latest")
 
 
 @app.route('/')

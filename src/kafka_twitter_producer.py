@@ -163,7 +163,7 @@ class KafkaListener(StreamListener):
 
     def send(self, topic, raw_bytes):
         try:
-            self.producer.send_messages(topic, raw_bytes)
+            self.producer.send(topic, raw_bytes)
         except:
             print("Error send message to kafka")
 

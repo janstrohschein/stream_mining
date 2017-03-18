@@ -1,13 +1,19 @@
 # Stream Mining
 This example works on twitter data, as huge volumes of new tweets are generated every day. The repository contains several files that illustrate the different components needed. 
 ## Examples in repository
+The first approach seen in "get_tweets_with_listener.py" tests the Tweepy library and the Twitter API to establish a listener for keywords, retrieve tweets and persist them on disc. As this worked Kafka was introduced to create simple consumers and producers. The last step was dynamic generation of a wordcloud based on incoming tweets.  
+
 
 ### "get_tweets_with_listener.py"
+![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/get_tweets_with_listener.png)
 Implements a stream listener based on the [tweepy](http://www.tweepy.org/) library. A configuration file is read to determine: 
 + Keywords that should be watched.
 + Number of tweets to extract. If no amount is specified the listener will print all incoming tweets until the user stops the process. 
 + Format to persist the data. It is possible to store as CSV or [AVRO](https://avro.apache.org/) file. 
 + The AVRO Schema to encode the tweets. Right now a basic Schema called "tweet.avsc" is used to store the Username and the cleaned tweet text. 
+
+### Kafka overview
+![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_overview.png)
 
 ### "simple_kafka_producer.py/simple_kafka_consumer.py"
 Tests the possibilities of Kafka to decouple producing and consuming of messages. To do this Kafka differentiates producers, brokers and consumers:
@@ -20,6 +26,16 @@ To execute this example it is required to start instances of  [Zookeeper](https:
 ### "kafka_twitter_producer.py/kafka_twitter_consumer.py"
 The stream listener from "get_tweets_with_listener.py" is now implemented in a Kafka producer. It uses the same configuration file to establish a connection to the Twitter stream and listen for given keywords. New tweets are encoded in Avro format as specified in "tweet_full.avsc" and published to the topic "tweets".
 The twitter consumer then receives the rich tweet object and is able to process it. The first implementation just prints all contained fields. Please find further information regarding all the fields and their meaning in the Twitter API Documentation for [Tweet](https://dev.twitter.com/overview/api/tweets) and [User objects](https://dev.twitter.com/overview/api/users).
+
+### kafka_twitter_consumer_to_avro.py
+This consumer implements the same functionality that was tested in "get_tweets_with_listener.py". Incoming tweets are stored in an Avro file. It is assumed that the process of storing a tweet will be slower than receiving a new tweet. So the process is decoupled from the producer and even if the new messages can no longer be stored in realtime no incoming messages will be lost.  
+
+### kafka_twitter_wordcloud_consumer2.py
+This is a bit of a special case. A producer and a consumer are combined to connect to the producer that publishes incoming tweets (topic "tweets"), process those tweets and publish the resulting wordcloud again (topic "wordcloud_output").
+
+### kafka_flask_sockets.py
+The consumer subscribes the topic "wordcloud_output" and displays incoming results via websockets in realtime on a flask website. The websockets establish a lasting connection between client and server so updates are transferred without any refreshing by the user.
+
 
 ## Installed libraries
 + kafka 2.11-0.10.1.1

@@ -36,6 +36,71 @@ This is a bit of a special case. A producer and a consumer are combined to conne
 ### kafka_flask_sockets.py
 The consumer subscribes the topic "wordcloud_output" and displays incoming results via websockets in realtime on a flask website. The websockets establish a lasting connection between client and server so updates are transferred without any refreshing by the user.
 
+### tweet_full.avsc
+tweet
++ t.id
++ t.created_at
++ t.timestamp_ms
++ t.text
++ t.favourite_count
++ t.favorited
++ t.in_reply_to_screen_name
++ t.in_reply_to_status_id
++ t.in_reply_to_user_id
++ t.is_quote_status
++ t.retweeted
++ tweet user
+    + t.u.id
+    + t.u.name
+    + t.u.screen_name
+    + t.u.description
+    + t.u.lang
+    + t.u.location
+    + t.u.statuses_count
+    + t.u.followers_count
+    + t.u.favourites_count
+    + t.u.friends_count
+    + t.u.created_at
+    
+quoted status
++ q.id
++ q.created_at
++ q.text
++ q.in_reply_to_screen_name
++ q.in_reply_to_status_id
++ q.in_reply_to_user_id
++ quoted status user
+    + q.u.id
+    + q.u.name
+    + q.u.screen_name
+    + q.u.description
+    + q.u.lang
+    + q.u.location
+    + q.u.statuses_count
+    + q.u.followers_count
+    + q.u.favourites_count
+    + q.u.friends_count
+    + q.u.created_at
+    
+retweeted status
++ r.id
++ r.created_at
++ r.text
++ r.in_reply_to_screen_name
++ r.in_reply_to_status_id
++ r.in_reply_to_user_id
++ retweet user
+    + r.u.id
+    + r.u.name
+    + r.u.screen_name
+    + r.u.description
+    + r.u.lang
+    + r.u.location
+    + r.u.statuses_count
+    + r.u.followers_count
+    + r.u.favourites_count
+    + r.u.friends_count
+    + r.u.created_at
 
 ## Installed libraries
 + kafka 2.11-0.10.1.1

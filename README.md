@@ -1,7 +1,8 @@
 # Stream Mining
-This example works on twitter data, as huge volumes of new tweets are generated every day. The repository contains several files that illustrate the different components needed. 
+This example works on twitter data, as huge volumes of new tweets are generated every day. The repository contains several files that illustrate the different components needed. The goal was to build a data pipeline that gathers new tweets and processes them in different steps. The output should be persisted on disk and served on a website in realtime. 
+
 ## Examples in repository
-The first approach seen in "get_tweets_with_listener.py" tests the Tweepy library and the Twitter API to establish a listener for keywords, retrieve tweets and persist them on disc. As this worked Kafka was introduced to create simple consumers and producers. The last step was dynamic generation of a wordcloud based on incoming tweets.  
+The first approach seen in "get_tweets_with_listener.py" tests the Tweepy library and the Twitter API to establish a listener for keywords, retrieve tweets and persist them on disc. As this worked Kafka was introduced to create simple consumers and producers. Afterwards the script that collected tweets and persisted them was split into different producers and consumers to decouple the different processes. The last step was dynamic generation of a wordcloud based on incoming tweets.  
 
 
 ### "get_tweets_with_listener.py"

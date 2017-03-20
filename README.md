@@ -16,6 +16,8 @@ Implements a stream listener based on the [tweepy](http://www.tweepy.org/) libra
 ![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_overview.png)
 
 ### "simple_kafka_producer.py/simple_kafka_consumer.py"
+![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/simple_kafka_producer_consumer.png)
+
 Tests the possibilities of Kafka to decouple producing and consuming of messages. To do this Kafka differentiates producers, brokers and consumers:
 + Producers generate an output and send messages to a "topic".
 + Broker store those messages into a specified amount of partitions. Brokers are stateless and need Zookeeper to manage state and coordinate between different brokers.
@@ -24,6 +26,8 @@ Tests the possibilities of Kafka to decouple producing and consuming of messages
 To execute this example it is required to start instances of  [Zookeeper](https://zookeeper.apache.org/) and [Kafka](https://kafka.apache.org/). Zookeeper is used by Kafka to orchestrate and synchronize the work between different nodes of producers or consumers. This example uses just one producer and one consumer. Whenever the simple producer is started it connects to Kafka on port 9092, encodes the message with the Avro Schema "user.avsc" and publishes it to the "user" topic. If the consumer is already running it will display the new message as soon as it arrives. Consumers can be configured to start at the current offset or process all retained messages again. 
 
 ### "kafka_twitter_producer.py/kafka_twitter_consumer.py"
+![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_producer_consumer.png)
+
 The stream listener from "get_tweets_with_listener.py" is now implemented in a Kafka producer. It uses the same configuration file to establish a connection to the Twitter stream and listen for given keywords. New tweets are encoded in Avro format as specified in "tweet_full.avsc" and published to the topic "tweets".
 The twitter consumer then receives the rich tweet object and is able to process it. The first implementation just prints all contained fields. Please find further information regarding all the fields and their meaning in the Twitter API Documentation for [Tweet](https://dev.twitter.com/overview/api/tweets) and [User objects](https://dev.twitter.com/overview/api/users).
 

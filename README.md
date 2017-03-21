@@ -13,9 +13,6 @@ Implements a stream listener based on the [tweepy](http://www.tweepy.org/) libra
 + Format to persist the data. It is possible to store as CSV or [AVRO](https://avro.apache.org/) file. 
 + The AVRO Schema to encode the tweets. Right now a basic Schema called "tweet.avsc" is used to store the Username and the cleaned tweet text. 
 
-### Kafka overview
-![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_overview.png)
-
 ### "simple_kafka_producer.py/simple_kafka_consumer.py"
 ![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/simple_kafka_producer_consumer.png)
 
@@ -25,6 +22,9 @@ Tests the possibilities of Kafka to decouple producing and consuming of messages
 + Consumers access and process the messages and acknowledge a new offset afterwards. By providing a different offset older messages can be read again in case of failure. Several consumers can work on the same topic by sharing a "group_id". Different consumers can process the same topics as the brokers will keep the messages until the specified duration of retention is reached. 
 
 To execute this example it is required to start instances of  [Zookeeper](https://zookeeper.apache.org/) and [Kafka](https://kafka.apache.org/). Zookeeper is used by Kafka to orchestrate and synchronize the work between different nodes of producers or consumers. This example uses just one producer and one consumer. Whenever the simple producer is started it connects to Kafka on port 9092, encodes the message with the Avro Schema "user.avsc" and publishes it to the "user" topic. If the consumer is already running it will display the new message as soon as it arrives. Consumers can be configured to start at the current offset or process all retained messages again. 
+
+### Kafka twitter pipeline
+![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_overview.png)
 
 ### "kafka_twitter_producer.py/kafka_twitter_consumer.py"
 ![](https://raw.githubusercontent.com/janstrohschein/stream_mining/master/docs/diagrams/kafka_twitter_producer_consumer.png)

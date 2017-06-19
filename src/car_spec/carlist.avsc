@@ -1,0 +1,10 @@
+{"namespace": "carlist.avro",
+ "type": "record",
+ "name": "Carlist",
+ "fields": [
+     {"name": "VIN", "type": "long"},
+     {"name": "Line",  "type": "long"},
+     {"name": "Date",  "type": "string"},
+     {"name": "Time",  "type": "string"}
+ ]
+}

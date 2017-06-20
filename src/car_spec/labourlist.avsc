@@ -1,0 +1,12 @@
+{"namespace": "labourlist.avro",
+ "type": "record",
+ "name": "Labourlist",
+ "fields": [
+     {"name": "VIN", "type": "long"},
+     {"name": "Line",  "type": "long"},
+     {"name": "Date",  "type": "string"},
+     {"name": "Time",  "type": "string"},
+     {"name": "Spec",  "type": "string"},
+     {"name": "Duration",  "type": "long"}
+ ]
+}

@@ -1,35 +1,29 @@
-from kafka import KafkaConsumer, KafkaProducer
-import avro.io
-import io
-from .KafkaPC import KafkaPC
+from src.car_spec.KafkaPC import KafkaPC
+
 
 class JoinSpecsPC(KafkaPC):
-    def __init__(self, arguments):
-        super().__init__(arguments)
-        self.consumer = KafkaConsumer('carlist',\
-                                 group_id='join_specs',\
-                                 bootstrap_servers=['localhost:9092'])
-
-        self.producer = KafkaProducer()
-        self.topic = 'speclist'
-        self.schema = avro.schema.Parse(open('carlist.avsc').read())
+    def __init__(self, in_topic, in_group, in_schema_file, out_topic, out_schema_file):
+        super().__init__(in_topic, in_group, in_schema_file, out_topic, out_schema_file)
 
         self.Spec = {}
         for i in range(30000):
             self.Spec[i] = [str(i) + "S1", str(i) + "S2", str(i) + "S3",
                             str(i) + "S4", str(i) + "S5", str(i) + "S6"]
 
-    def decode(self, msg):
-        bytes_reader = io.BytesIO(msg.value)
-        decoder = avro.io.BinaryDecoder(bytes_reader)
-        reader = avro.io.DatumReader(self.schema)
-        return reader.read(decoder)
 
-
-new_pc = JoinSpecsPC()
+new_pc = JoinSpecsPC('carlist', 'join_specs', 'carlist.avsc', 'speclist', 'speclist.avsc')
 
 for msg in new_pc.consumer:
-    carlist = new_pc.decode(msg)
+    carlist = new_pc.decode_msg(msg)
     new_spec = new_pc.Spec[carlist['VIN']]
     for item in new_spec:
         print(carlist['VIN'], carlist['Line'], item, carlist['Date'], carlist['Time'])
+        speclistdata = {
+            "VIN": carlist['VIN'],
+            "Line": carlist['Line'],
+            "Date": carlist['Date'],
+            "Time": carlist['Time'],
+            "Spec": item
+        }
+        new_pc.send_msg(speclistdata)
+

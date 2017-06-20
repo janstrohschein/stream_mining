@@ -1,0 +1,12 @@
+{"namespace": "speclist.avro",
+ "type": "record",
+ "name": "Speclist",
+ "fields": [
+     {"name": "VIN", "type": "long"},
+     {"name": "Line",  "type": "long"},
+     {"name": "Date",  "type": "string"},
+     {"name": "Time",  "type": "string"},
+     {"name": "Spec",  "type": "string"}
+
+ ]
+}

@@ -24,7 +24,7 @@ def index():
             # iterates over the kafka consumer and yields the resulting word cloud
             for msg in tweets.consumer:
                 # decode the current tweet with the avro in_schema
-                data = msg.value.decode()
+                data = msg.value.decode_msg()
                 word_cloud = json.loads(data, 'utf-8')
 
                 # encodes the list to a json-object and yields it as result for this

@@ -25,13 +25,13 @@ class KafkaPC():
                                       group_id=in_group, \
                                       bootstrap_servers=['localhost:9092'])
 
-    def decode(self, msg):
+    def decode_msg(self, msg):
         bytes_reader = io.BytesIO(msg.value)
         decoder = avro.io.BinaryDecoder(bytes_reader)
         reader = avro.io.DatumReader(self.in_schema)
         return reader.read(decoder)
 
-    def encode(self, data):
+    def __encode(self, data):
         raw_bytes = None
         try:
             writer = DatumWriter(self.out_schema)
@@ -46,7 +46,7 @@ class KafkaPC():
     def send_msg(self, data):
 
         # encode the CarList with the specified Avro in_schema
-        raw_bytes = self.encode(data)
+        raw_bytes = self.__encode(data)
 
         # publish the message if encoding was successful
         if raw_bytes is not None:

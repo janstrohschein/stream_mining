@@ -1,6 +1,6 @@
-{"namespace": "labourlist.avro",
+{"namespace": "groupresult.avro",
  "type": "record",
- "name": "Labourlist",
+ "name": "GroupResult",
  "fields": [
      {"name": "VIN", "type": "long"},
      {"name": "Line",  "type": "long"},

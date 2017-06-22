@@ -48,7 +48,7 @@ class CarListP():
 
 
 # generate data all at once
-dataset = [ (i, random.randrange(1,3), str(datetime.date.today()), str(datetime.datetime.now().time())) for i in range(30000)]
+dataset = [ (i, random.randrange(1,3), str(datetime.date.today())) for i in range(1,30000)]
 
 new_producer = CarListP()
 
@@ -59,9 +59,10 @@ for data in dataset:
         "VIN": data[0],
         "Line": data[1],
         "Date": data[2],
-        "Time": data[3]
+        "Time": str(datetime.datetime.now().time())
     }
 
+    print(carlistdata)
     new_producer.send_msg(carlistdata)
 
-    time.sleep(2.5)
+    #time.sleep(.02)
